@@ -59,6 +59,12 @@ CLT_Read_u_t all_zeroes;
 CLT_Read_u_t Or_temp;
 CLT_Read_u_t debounced_data = {0};
 
+queue_msg_t cvc_spi_msg_1 =
+{
+	.Tx_header = {0xfd, 0, STD, RTR, 0x8},
+	.data._8 = {0, 0, 0, 0, 0, 0, 0, 0}
+};
+
 
 /* Task Functions ----------------------------------------------------------------*/
 /**
@@ -225,14 +231,25 @@ void SPI_PLC_Set_Inputs(void)
 
 #if CVC_PROTOTYPE == 1
 
+
+
 	SPI_inputs_vector.BMS_OK 					= CLT_Read.bit.IN1;
+	cvc_spi_msg_1.data._8[0]                    = SPI_inputs_vector.BMS_OK;
 	SPI_inputs_vector.IMD_OK 					= CLT_Read.bit.IN2;
+	cvc_spi_msg_1.data._8[1]                    = SPI_inputs_vector.IMD_OK;
 	SPI_inputs_vector.RESET 					= CLT_Read.bit.IN3;
+	cvc_spi_msg_1.data._8[2]                    = SPI_inputs_vector.RESET;
 	SPI_inputs_vector.DASH_BRB 					= CLT_Read.bit.IN4;
-	SPI_inputs_vector.TSMS 				= CLT_Read.bit.IN5;
-	SPI_inputs_vector.RTD 				= CLT_Read.bit.IN6;
-	SPI_inputs_vector.BOT 				= CLT_Read.bit.IN7;
-	SPI_inputs_vector.AIR_1					= CLT_Read.bit.IN8;
+	cvc_spi_msg_1.data._8[3]                    = SPI_inputs_vector.DASH_BRB;
+	SPI_inputs_vector.TSMS 				        = CLT_Read.bit.IN5;
+	cvc_spi_msg_1.data._8[4]                    = SPI_inputs_vector.TSMS;
+	SPI_inputs_vector.RTD 				        = CLT_Read.bit.IN6;
+	cvc_spi_msg_1.data._8[5]                    = SPI_inputs_vector.RTD;
+	SPI_inputs_vector.BOT 				        = CLT_Read.bit.IN7;
+	cvc_spi_msg_1.data._8[6]                    = SPI_inputs_vector.BOT;
+	SPI_inputs_vector.AIR_1				      	= CLT_Read.bit.IN8;
+	cvc_spi_msg_1.data._8[7]                    = SPI_inputs_vector.AIR_1;
+	//CAN_Send(cvc_spi_msg_1);
 
 #endif /* CVC_PROTOTYPE == 0 */
 }

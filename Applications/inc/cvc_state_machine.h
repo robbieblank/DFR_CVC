@@ -15,7 +15,7 @@
 #include "cvc_can.h"
 #include "stm32f7xx_nucleo_144.h"
 #include "cvc_logging.h"
-
+   
 /* Defines ------------------------------------------------------------------------*/
 //#define BUZZER_TIMER_LOAD 40 // 2 seconds --> (2 s)/(0.05 s) = 40 ticks
 //#define PRE_CHARGE_TIMER_LOAD 50 // 2.5 seconds --> (2.5 s)/(0.05 s) = 50 ticks
@@ -30,17 +30,17 @@
 /* Type Defines ------------------------------------------------------------------------*/
 typedef enum cvc_state_e
 {
-	CVC_ERROR,
-	GLV_FAULT,
-	READY,
-	PRECHARGE,
-	BUZZER,
-	DRIVE,
-	NEUTRAL,
-	REVERSE,
-	CHARGING,
-	CHARGE_ERROR,
-	CHARGE_DONE
+	CVC_ERROR, //0
+	GLV_FAULT, //1
+	READY, //2
+	PRECHARGE, //3
+	BUZZER, //4
+	DRIVE, //5
+	NEUTRAL, //6
+	REVERSE, //7
+	CHARGING, //8
+	CHARGE_ERROR, //9
+	CHARGE_DONE //10
 
 } cvc_state_t;
 
@@ -65,6 +65,8 @@ typedef enum cvc_error_code_e
 	LOGGING_ERR = 5,
 	TPS_ERR = 6,
 } cvc_error_code_t;
+
+
 
 /* Variables to Export ------------------------------------------------------------------------*/
 extern volatile cvc_state_t cvc_state;

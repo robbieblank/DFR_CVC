@@ -43,6 +43,97 @@ static uint8_t log_disable_prev = 0xFF;
 static uint8_t log_disable_temp = 0xFF;
 static uint8_t log_disable_counter = 0;
 
+queue_msg_t cvc_state_msg_1 =
+{
+	.Tx_header = {0xff, 0, STD, RTR, 0x8},
+	.data._8 = {0, 0, 0, 0, 0, 0, 0, 0}
+};
+
+queue_msg_t cvc_error_msg_1 =
+{
+	.Tx_header = {0xfe, 0, STD, RTR, 0x8},
+	.data._8 = {0}
+};
+
+void sendErrorMessage(){
+	if(cvc_error ==NONE){
+		cvc_error_msg_1.data._8[0]= 1;
+	}
+	else if(cvc_error ==QUEUE_ERR){
+		cvc_error_msg_1.data._8[0]= 2;
+	}
+	else if(cvc_error ==CAN_ERR){
+		cvc_error_msg_1.data._8[0]= 3;
+	}
+	else if(cvc_error ==VOLTAGE_ERR){
+		cvc_error_msg_1.data._8[0]= 4;
+	}
+	else if(cvc_error ==ENGINE_ERR){
+		cvc_error_msg_1.data._8[0]= 5;
+	}
+	else if(cvc_error ==LOGGING_ERR){
+		cvc_error_msg_1.data._8[0]= 6;
+	}
+	else if(cvc_error ==TPS_ERR){
+		cvc_error_msg_1.data._8[0]= 7;
+	}
+	CAN_Send(cvc_error_msg_1);
+}
+
+void sendMessage()
+{
+	//Store CVC State
+	if(cvc_state ==CVC_ERROR){
+		cvc_state_msg_1.data._8[0]= 1;
+	}
+	else if(cvc_state ==GLV_FAULT){
+		cvc_state_msg_1.data._8[0]= 2;
+	}
+	else if(cvc_state ==READY){
+		cvc_state_msg_1.data._8[0]= 3;
+	}
+	else if(cvc_state ==PRECHARGE){
+		cvc_state_msg_1.data._8[0]= 4;
+	}
+	else if(cvc_state ==BUZZER){
+		cvc_state_msg_1.data._8[0]= 5;
+	}
+	else if(cvc_state ==DRIVE){
+		cvc_state_msg_1.data._8[0]= 6;
+	}
+	else if(cvc_state ==NEUTRAL){
+		cvc_state_msg_1.data._8[0]= 7;
+	}
+	else if(cvc_state ==REVERSE){
+		cvc_state_msg_1.data._8[0]= 8;
+	}
+	else if(cvc_state ==CHARGING){
+		cvc_state_msg_1.data._8[0]= 9;
+	}
+	else if(cvc_state ==CHARGE_ERROR){
+		cvc_state_msg_1.data._8[0]= 10;
+	}
+	else{
+		cvc_state_msg_1.data._8[0]= 11;
+	}
+
+	//Store CVC Fault Status
+	if(cvc_fault ==CVC_OK){
+		cvc_state_msg_1.data._8[1]= 1;
+	}
+	else if(cvc_fault ==CVC_WARNING){
+		cvc_state_msg_1.data._8[1]= 2;
+	}
+	else if(cvc_fault ==CVC_RST_FAULT){
+		cvc_state_msg_1.data._8[1]= 3;
+	}
+	else if(cvc_fault ==CVC_HARD_FAULT){
+		cvc_state_msg_1.data._8[1]= 4;
+	}
+
+
+	CAN_Send(cvc_state_msg_1);
+}
 
 void state_machine()
 {
@@ -55,6 +146,8 @@ void state_machine()
 	SPI_outputs_vector.CVC_WARN = 1;
 
 	xSemaphoreGive(SPI_Outputs_Vector_Mutex);
+
+	
 
 	// states
 	switch(cvc_state) {
@@ -164,10 +257,17 @@ void state_machine()
 			cvc_state = GLV_FAULT;
 		break;
 
+		case CVC_ERROR:
+			sendErrorMessage();
+		break;
+		
 		default:
 			cvc_state = GLV_FAULT;
 		break;
 	}
+
+	sendMessage();
+
 }
 
 void safety_monitor(void)

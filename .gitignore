@@ -7,7 +7,7 @@
 *.o
 *.so
 *.d
-Debug/
+Debug/*
 
 # Packages #
 ############
